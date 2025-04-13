@@ -1,14 +1,13 @@
 from data.load_data import load_lakers_data
 from preprocessing.classify_features import classify_features
 from preprocessing.normalization import min_max_normalize, z_score_standardize, ratio_transformation
-from preprocessing.outlier_detection import plot_boxplots
 from ranking.synthetic_index import compute_synthetic_index
 from visualization.plots import plot_histograms
 import pandas as pd
 import os
 
 def main():
-    filepath = "./data/Statistics.csv"
+    filepath = "./data/DaneZawodnikow.csv"
     df = load_lakers_data(filepath)
 
     features = classify_features()
@@ -19,14 +18,13 @@ def main():
 
     # Uśrednienie cech przez liczbę lat gry
     for feature in all_features:
-        df[feature] = df[feature] / df['Yrs']
+        df[feature] = df[feature] / df['MP']
 
-    # Zamiana destymulant na stymulant (odwrotność)
+    
     for feature in features['destimulants']:
         df[feature] = df[feature].max() - df[feature]
 
     # Wizualizacja cech oryginalnych
-    plot_boxplots(df, all_features, output_dir="plots/boxplots")
     plot_histograms(df, all_features, output_dir="plots/histograms")
 
     # Zastosowanie trzech metod normalizacji i zapis rankingów
