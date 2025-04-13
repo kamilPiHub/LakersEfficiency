@@ -7,27 +7,22 @@ import pandas as pd
 import os
 
 def main():
-    filepath = "./data/DaneZawodnikow.csv"
+    filepath = "./data/DaneZawodnikow.csv" 
     df = load_lakers_data(filepath)
 
     features = classify_features()
     all_features = features['stimulants'] + features['destimulants']
 
-    # Uzupełnienie braków danych medianą
     df[all_features] = df[all_features].fillna(df[all_features].median())
 
-    # Uśrednienie cech przez liczbę lat gry
     for feature in all_features:
         df[feature] = df[feature] / df['MP']
 
-    
     for feature in features['destimulants']:
         df[feature] = df[feature].max() - df[feature]
 
-    # Wizualizacja cech oryginalnych
     plot_histograms(df, all_features, output_dir="plots/histograms")
 
-    # Zastosowanie trzech metod normalizacji i zapis rankingów
     transformations = {
         'unitaryzacja': min_max_normalize,
         'standaryzacja': z_score_standardize,
