@@ -1,25 +1,20 @@
+import os
+import pandas as pd
 from data.load_data import load_lakers_data
 from preprocessing.classify_features import classify_features
 from preprocessing.normalization import min_max_normalize, z_score_standardize, ratio_transformation
-from ranking.synthetic_index import compute_synthetic_index
 from visualization.plots import plot_histograms
-import pandas as pd
-import os
+from preprocessing.prepare_data import preprocess_data, transform_destimulants, generate_rankings
 
 def main():
-    filepath = "./data/DaneZawodnikow.csv" 
+    filepath = "./data/DaneZawodnikow.csv"
     df = load_lakers_data(filepath)
 
     features = classify_features()
     all_features = features['stimulants'] + features['destimulants']
 
-    df[all_features] = df[all_features].fillna(df[all_features].median())
-
-    for feature in all_features:
-        df[feature] = df[feature] / df['MP']
-
-    for feature in features['destimulants']:
-        df[feature] = df[feature].max() - df[feature]
+    df = preprocess_data(df, all_features)
+    df = transform_destimulants(df, features['destimulants'])
 
     plot_histograms(df, all_features, output_dir="plots/histograms")
 
@@ -29,14 +24,7 @@ def main():
         'ilorazowa': ratio_transformation
     }
 
-    for name, method in transformations.items():
-        df_norm = method(df.copy(), all_features)
-        df["Synthetic_Index"] = compute_synthetic_index(df_norm[all_features])
-        ranking = df[["Player", "Synthetic_Index"]].sort_values(by="Synthetic_Index", ascending=False)
-        output_file = f"ranking_lakers_{name}.csv"
-        ranking.to_csv(output_file, index=False)
-        print(f"TOP 5 ({name}):")
-        print(ranking.head(5), "\n")
+    generate_rankings(df, all_features, transformations)
 
 if __name__ == "__main__":
     main()
