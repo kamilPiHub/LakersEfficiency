@@ -2,9 +2,9 @@ import os
 import pandas as pd
 from data.load_data import load_lakers_data
 from preprocessing.classify_features import classify_features
-from preprocessing.normalization import min_max_normalize, z_score_standardize, ratio_transformation
+from preprocessing.methods import min_max_normalize, z_score_standardize, ratio_transformation
 from visualization.plots import plot_histograms
-from preprocessing.prepare_data import preprocess_data, transform_destimulants, generate_rankings
+from preprocessing.prepare_data import remove_outliers_isolation_forest, preprocess_data, transform_destimulants, generate_rankings
 
 def main():
     filepath = "./data/DaneZawodnikow.csv"
@@ -13,6 +13,7 @@ def main():
     features = classify_features()
     all_features = features['stimulants'] + features['destimulants']
 
+    df = remove_outliers_isolation_forest(df, all_features)
     df = preprocess_data(df, all_features)
     df = transform_destimulants(df, features['destimulants'])
 

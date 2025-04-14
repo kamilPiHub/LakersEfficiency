@@ -7,4 +7,4 @@ def z_score_standardize(df, features):
     return (df[features] - df[features].mean()) / df[features].std()
 
 def ratio_transformation(df, features):
-    return df[features].div(df[features].mean())
+    return df[features] / df[features].mean()

@@ -1,4 +1,6 @@
 from ranking.synthetic_index import compute_synthetic_index
+from sklearn.ensemble import IsolationForest
+import pandas as pd
 
 def preprocess_data(df, all_features):
     df[all_features] = df[all_features].fillna(df[all_features].median())
@@ -7,6 +9,13 @@ def preprocess_data(df, all_features):
         df[feature] = df[feature] / df['MP']
 
     return df
+
+def remove_outliers_isolation_forest(df, all_features):
+    isolation_forest = IsolationForest(contamination=0.05, random_state=42)
+    outliers = isolation_forest.fit_predict(df[all_features])
+    df = df[outliers != -1]
+    return df
+    
 
 def transform_destimulants(df, destimulants):
     for feature in destimulants:
